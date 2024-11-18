@@ -1,0 +1,87 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+	<div class="container">
+		<div class="row">
+			<h1>Bank Acount</h1>
+			<div class="col-sm-6 col-12">
+				@* <form asp-controller="Bank" asp-action="NewBankAccount" method="post"> *@
+			
+					<div class="mb-3">
+						<label class="form-label" for="card_number">Card Number</label>
+						<input class="form-control" type="text" name="card_number" id="card_number">
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="card_holder">Card Holder</label>
+						<input class="form-control" type="text" name="card_holder" id="card_holder">
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label" for="bank_inistitution">Bank Inistitutione</label>
+						<input class="form-control" type="text" name="bank_inistitution" id="bank_inistitution">
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="bank_type">Account Type</label>
+						<select class="form-select" aria-label="Default select example" name="bank_type" id="bank_type">
+							<option selected>Open this select menu</option>
+							<option value="debit">Debit</option>
+							<option value="credit">Credit</option>
+						</select>
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="expiry_date">Expiry Date</label>
+						<input class="form-control" type="date" name="expiry_date" id="expiry_date">
+					</div>
+					<button class="btn btn-outline-primary btn-sm" id="submitBtn">Save</button>
+
+			</div>
+			<div class="col-sm-6 col-12">
+			</div>
+		</div>
+
+	</div>
+	
+	@section scripts{
+	<script type='text/javascript'>
+		$('document').ready(function () {
+			$("#submitBtn").click(function (e) {
+				e.preventDefault();
+				var card_number = $("#card_number").val();
+				var card_holder = $("#card_holder").val();
+				var bank_inistitution = $("#bank_inistitution").val();
+				var bank_type = $("#bank_type").val();
+				var expiry_date = $("#expiry_date").val();
+
+				if (card_number == '' || card_holder == '' || bank_inistitution == '' || bank_type == '' || expiry_date == '') {
+					alert('Empty value found');
+					return;
+				}
+
+				$.ajax({
+					type: 'POST',
+					url: '/Bank/NewBankAccount',
+					data: {
+						card_number: card_number,
+						card_holder: card_holder,
+						bank_inistitution: bank_inistitution,
+						bank_type: bank_type,
+						expiry_date: expiry_date
+					},
+					success: function (response) {
+						//window.location.href = "/Bank/AccountList";
+					},
+					error: function (jqXHR, status, error) {
+						console.log(status);
+					}
+				});
+			});
+			
+			
+		});
+	</script>
+	}
+	

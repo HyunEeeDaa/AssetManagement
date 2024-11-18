@@ -1,0 +1,58 @@
+﻿@model List<SelectListItem>
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Keyword</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">Keyword</label>
+                <input class="form-control" name="KeywordName" id="keyword" />
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Category</label>
+                <select class ="form-control" asp-items="Model" name="CategoryId" id="category"></select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" id="createButton">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $("document").ready(function () {
+            $("#createButton").click(function (e) {
+                e.preventDefault();
+
+                let keyword = $("#keyword").val();
+                let category = $("#category").val();
+
+                $.ajax({
+                    method: "POST",
+                    url: "/Keywords/Create",
+                    data: { KeywordName: keyword, CategoryId: category }
+                })
+                    .done(function () {
+                        alert("Keyword has been created successfully");
+                    });
+            });
+        });
+     </script>
+   
+}
