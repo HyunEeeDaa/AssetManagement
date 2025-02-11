@@ -22,4 +22,6 @@ public partial class BankAccount
     public int AccountId { get; set; }
 
     public virtual Account Account { get; set; }
+
+    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

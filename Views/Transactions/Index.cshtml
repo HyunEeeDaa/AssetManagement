@@ -1,43 +1,88 @@
-﻿@model IEnumerable<AssetManagement.Models.Transaction>
+﻿@using AssetManagement.DTOs
+@model TransactionViewModel
+@*@model IEnumerable<AssetManagement.Models.Transaction>*@
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Transcations</h1>
+
+<div class="mb-3">
+        <div class="accordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Enter Manually
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <a asp-action="Create" class="btn btn-outline-secondary">Enter Manually</a>
+                    </div>
+                </div>
+            </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Enter csv File
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <form action="UploadCsv" enctype="multipart/form-data" method="post">
+
+                        <div class="form-group">
+                            <label class="control-label">Bank Account</label>
+                            <select class="form-control" name="bankAccountId" id="bankAccount">
+                                @foreach (var item in Model.BankAccounts)
+                                {
+                                    <option value="@item.Id">@item.BankInistitution</option>
+                                }
+                            </select>
+                        </div>
+
+                        <label for="csvFile" class="form-label"></label>
+                        <input class="form-control" type="file" id="csvFile" name="csvFile">
+                        <p></p>
+                        <input type="submit" class="btn btn-outline-success">
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+    
+</div>
 
 
-<a asp-action="Create" class="btn btn-outline-secondary">Create New</a>
 
-<form action="UploadCsv" enctype="multipart/form-data" method="post">
-    <label for="csvFile" class="form-label"></label>
-    <input class="form-control" type="file" id="csvFile" name="csvFile">
-    <p></p>
-    <input type="submit" class="btn btn-outline-success">
-</form>
     
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Date)
+                @Html.DisplayNameFor(model => model.Transactions[0].Date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Merchant)
+                @Html.DisplayNameFor(model => model.Transactions[0].Merchant)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OutgoingAmount)
+                @Html.DisplayNameFor(model => model.Transactions[0].OutgoingAmount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IncomingAmount)
+                @Html.DisplayNameFor(model => model.Transactions[0].IncomingAmount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CategoryId)
+                @Html.DisplayNameFor(model => model.Transactions[0].CategoryId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transactions[0].BankAccount.BankInistitution)
             </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @foreach (var item in Model.Transactions)
+        {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Date)
@@ -54,6 +99,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.CategoryId)
             </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BankAccount.BankInistitution)
+                </td>
             <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-success btn-sm">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">Details</a> |

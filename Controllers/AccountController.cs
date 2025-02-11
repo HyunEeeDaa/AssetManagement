@@ -1,6 +1,5 @@
 ﻿using AssetManagement.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 
 namespace AssetManagement.Controllers
 {
@@ -27,26 +26,33 @@ namespace AssetManagement.Controllers
         {
             Account? account = _dbContext.Accounts.Where(o => o.Username == username && o.Password == password).FirstOrDefault();
 
-            if(account == null)
+            if (account == null)
             {
                 return View();
             }
-            SetAccountSession(account);   
+            SetAccountSession(account);
             return RedirectToAction("Index", "Home");
+        }
+        
+        public IActionResult Logout()
+        {
+            resetAccoutSession();
+            return RedirectToAction("Login", "Account");
         }
 
         [HttpPost]
-        public void RegisterNewAccount(string username, string email, string name, string password)
-        {           
+        public IActionResult RegisterNewAccount(string username, string email, string name, string password)
+        {
             Account account = new Account();
             account.Username = username;
             account.Name = name;
             account.Password = password;
             account.Email = email;
-                
+
             _dbContext.Accounts.Add(account); // database 넣는 준비한는 코드
-            _dbContext.SaveChanges();// database에 실질적인 저장
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index", "Home");// database에 실질적인 저장
         }
     }
-    
+
 }

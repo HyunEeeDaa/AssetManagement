@@ -12,6 +12,10 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Identity.Client;
+using AssetManagement.DTOs;
+using System.Security.Principal;
+
 
 namespace AssetManagement.Controllers
 {
@@ -27,11 +31,33 @@ namespace AssetManagement.Controllers
         // GET: Transactions
         public async Task<IActionResult> Index()
         {
-            return View(await _dbContext.Transactions.ToListAsync());
+            Account? account = GetCurrentUser();
+            if (account == null)
+            {
+                RedirectToAction("Index", "Home");
+            }
+            List<BankAccount> bankAccounts = await _dbContext.BankAccounts.Where(o => o.AccountId == account.Id).ToListAsync();
+            List <Transaction > transactions = await _dbContext.Transactions.Where(o => o.BankAccount.AccountId == account!.Id).ToListAsync();
+            TransactionViewModel viewModel = new TransactionViewModel();
+            viewModel.BankAccounts = bankAccounts;
+            viewModel.Transactions = transactions;
+            return View(viewModel);
+            //List<SelectListItem> bankAccountOptions = new List<SelectListItem>();
+            //foreach (BankAccount bankAccount in bankAccounts)
+            //{
+            //    SelectListItem selectListItem = new SelectListItem(bankAccount.BankInistitution, bankAccount.Id.ToString());
+            //    bankAccountOptions.Add(selectListItem);
+            //}
+            //return View(bankAccountOptions);
+            //var transactions = _dbContext.Transactions.Include(t => t.BankAccount).Where(o => o.BankAccount.AccountId == account!.Id).ToList();
+            //return View(transactions);
+            //List<Transaction> transactions = _dbContext.Transactions.Where(o => o.AccountId == account!.Id).ToList();
+            //return View(transactions);
+            //return View(await _dbContext.Transactions.ToListAsync());
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadCsv(IFormFile csvFile)
+        public async Task<IActionResult> UploadCsv(IFormFile csvFile, int bankAccountId)
         {
 
             List<Transaction> transactions = new List<Transaction>();   
@@ -46,7 +72,11 @@ namespace AssetManagement.Controllers
                     var line = stream.ReadLine();
                     if (line != null)
                     {
-                       
+                        Account? account = GetCurrentUser();
+                        if (account == null)
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
                         var values = line.Split(',');
                         DateTime date = DateTime.Parse(values[0]);
                         string merchant = values[1];
@@ -59,6 +89,7 @@ namespace AssetManagement.Controllers
                         transaction.IncomingAmount = incomingAmount;
                         transaction.OutgoingAmount = outgoingAmount;
                         transaction.CategoryId = categoryId;
+                        transaction.BankAccountId = bankAccountId;
                         _dbContext.Transactions.Add(transaction);
                         _dbContext.SaveChanges();
                         
@@ -69,6 +100,16 @@ namespace AssetManagement.Controllers
             var a = transactions;
             return RedirectToAction(nameof(Index));
         }
+        //public ActionResult CharterHelp()
+        //{
+        //    new Chart(width: 500, height: 300, theme: ChartTheme.Blue)
+        //    .AddTitle("Chart for languages")
+        //         .AddSeries(
+        //              chartType: "column",
+        //           xValue: new[] { "ASP.NET", "HTML5", "C Language", "C++" },
+        //             yValues: new[] { "90", "100", "80", "70" })
+        //           .Write("bmp");
+        //    return null;
 
         public async Task<int> CheckKeyword(string merchant)
         {
@@ -105,9 +146,17 @@ namespace AssetManagement.Controllers
         }
 
         // GET: Transactions/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            Account? account = GetCurrentUser();
+            if (account == null)
+            {
+                RedirectToAction("Index", "Home");
+            }
+            List<BankAccount> bankAccounts = await _dbContext.BankAccounts.Where(o => o.AccountId == account.Id).ToListAsync();
+            AddTransactionViewModel viewModel = new AddTransactionViewModel();
+            viewModel.BankAccounts = bankAccounts;
+            return View(viewModel);
         }
 
         // POST: Transactions/Create
@@ -115,11 +164,12 @@ namespace AssetManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Date,Merchant,OutgoingAmount,IncomingAmount")] Transaction transaction)
+        public async Task<IActionResult> Create(int Id, DateTime Date, String Merchant, double OutgoingAmount, double IncomingAmount, int bankAccountId, Transaction transaction)
         {
             if (ModelState.IsValid)
             {
                 transaction.CategoryId = await CheckKeyword(transaction.Merchant);
+                transaction.BankAccountId = bankAccountId;
                 _dbContext.Add(transaction);
                 await _dbContext.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -160,6 +210,7 @@ namespace AssetManagement.Controllers
                 try
                 {
                     transaction.CategoryId = await CheckKeyword(transaction.Merchant);
+                    //transaction.AccountId = id;
                     _dbContext.Update(transaction);
                     await _dbContext.SaveChangesAsync();
                 }

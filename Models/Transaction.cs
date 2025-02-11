@@ -19,4 +19,7 @@ public partial class Transaction
 
     public int CategoryId { get; set; }
 
+    public int BankAccountId { get; set; }
+
+    public virtual BankAccount BankAccount { get; set; }
 }

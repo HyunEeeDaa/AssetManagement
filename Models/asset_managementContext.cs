@@ -40,7 +40,7 @@ public partial class asset_managementContext : DbContext
                 .HasColumnName("name");
             entity.Property(e => e.Password)
                 .IsRequired()
-                .HasMaxLength(255)
+                .HasMaxLength(50)
                 .HasColumnName("password");
             entity.Property(e => e.Username)
                 .IsRequired()
@@ -124,6 +124,7 @@ public partial class asset_managementContext : DbContext
             entity.ToTable("Transaction");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.BankAccountId).HasColumnName("bank_accountID");
             entity.Property(e => e.CategoryId).HasColumnName("categoryID");
             entity.Property(e => e.Date)
                 .HasColumnType("date")
@@ -134,6 +135,11 @@ public partial class asset_managementContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("merchant");
             entity.Property(e => e.OutgoingAmount).HasColumnName("outgoing_amount");
+
+            entity.HasOne(d => d.BankAccount).WithMany(p => p.Transactions)
+                .HasForeignKey(d => d.BankAccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Transaction_BankAccount");
         });
 
         OnModelCreatingPartial(modelBuilder);

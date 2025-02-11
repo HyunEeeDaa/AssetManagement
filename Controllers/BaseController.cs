@@ -26,5 +26,9 @@ namespace AssetManagement.Controllers
 			HttpContext.Session.SetString("CurrentUserEmail", account.Email);
 			HttpContext.Session.SetInt32("CurrentUseId", account.Id);
 		}
+		public void resetAccoutSession()
+		{
+			HttpContext.Session.Clear();
+        }
 	}
 }

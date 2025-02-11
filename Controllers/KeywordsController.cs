@@ -21,8 +21,15 @@ namespace AssetManagement.Controllers
         // GET: Keywords
         public async Task<IActionResult> Index()
         {
-            var asset_managementContext = _dbContext.Keywords.Include(k => k.Account).Include(k => k.Category);
-            return View(await asset_managementContext.ToListAsync());
+            Account? account = GetCurrentUser();
+            if (account == null)
+            {
+                RedirectToAction("Index", "Home");
+            }
+            //List<Keyword> keywords = _dbContext.Keywords.Where(o => o.AccountId == account!.Id).ToList();
+            //return View(keywords);
+            var asset_managementContext = _dbContext.Keywords.Include(k => k.Account).Include(k => k.Category).Where(o => o.AccountId == account!.Id).ToList();
+            return View(asset_managementContext);
         }
 
         // GET: Keywords/Details/5

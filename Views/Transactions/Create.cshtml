@@ -1,4 +1,5 @@
-﻿@model AssetManagement.Models.Transaction
+﻿@using AssetManagement.DTOs
+@model AddTransactionViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -31,6 +32,15 @@
                 <label asp-for="IncomingAmount" class="control-label"></label>
                 <input asp-for="IncomingAmount" class="form-control" />
                 <span asp-validation-for="IncomingAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Bank Account</label>
+                <select class="form-control" name="bankAccountId" id="bankAccount">
+                    @foreach (var item in Model.BankAccounts)
+                    {
+                        <option value="@item.Id">@item.BankInistitution</option>
+                    }
+                </select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
